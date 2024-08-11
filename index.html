@@ -63,20 +63,14 @@
             border: none;
             border-radius: 5px;
             box-sizing: border-box;
-        }
-
-        .altButton {
             background-color: var(--button-bg-color);
             color: var(--button-text-color);
             cursor: pointer;
+            border: 2px solid var(--input-border-color);
         }
 
         .altButton:hover {
             opacity: 0.9;
-        }
-
-        .altButton {
-            border: 2px solid var(--input-border-color);
         }
 
         #gifImage {
@@ -91,18 +85,6 @@
             margin-top: 20px;
             font-size: 18px;
             color: var(--accent-color);
-        }
-
-        #countdown {
-            font-size: 18px;
-            margin-top: 20px;
-            color: var(--accent-color);
-        }
-
-        #releaseText {
-            font-size: 16px;
-            margin-top: 15px;
-            color: var(--text-color);
         }
 
         #pongGame {
@@ -125,10 +107,11 @@
 
         .darkModeTogglePos {
             position: absolute;
-        top: 0px;
-        right: 0px;
-        border: 3px transparent #ffffff;
-        padding: 20px;
+            top: 0;
+            right: 0;
+            border: 3px transparent #ffffff;
+            padding: 20px;
+            cursor: pointer;
         }
 
         @media (max-width: 600px) {
@@ -136,7 +119,7 @@
                 font-size: 22px;
             }
 
-            p, button, input, #countdown, #releaseText {
+            p, .altButton {
                 font-size: 16px;
             }
 
@@ -145,89 +128,60 @@
                 height: auto;
             }
         }
+
+        /* Game Over Screen */
+        #gameOverScreen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            padding-top: 20%;
+            font-size: 24px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
     <main>
         <h2>Sinn der Website</h2>
         <p>Ich hatte Langeweile</p>
-        <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively ge ts more difficult as it continues. The 20 met
-            er pacer test will begin in 30 sec
-            onds. Line up at the start. The runnin speed starts slowly, but gets faster each minute after you hear this signal. [beep] A singl
-            e lap should be completed each time you hear this sound. [ding] Remember to run in a straight line, and run as long as possible. The second time yo
-            u fail to complete aa lap before the sound, your test is over. The test will begin on the word start. On your mark
-            , get ready, start.</p>
+        <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues...</p>
 
         <input type="image" src="mode.svg" height="30" width="30" class="darkModeTogglePos" onclick="toggleDarkMode()">
 
-        <button id="altButton" class="altButton" style="display: none;" onclick="showGif()">Drück mich</button>
+        <button id="startPongButton" class="altButton" style="display: none;" onclick="startPongGame()">Starte Pong Spiel</button>
         <img id="gifImage" src="https://media.giphy.com/media/l4FGn8Asi6rrg5wVy/giphy.gif" alt="HAHA Funny gif">
 
         <input class="altButton" type="password" id="passwordInput" placeholder="Passwort eingeben" style="display: none;">
         <p id="successMessage" style="display: none;">Beta Ende: Vollversion kommt am 31.8.2024</p>
         <input class="altButton" type="text" id="textInput" placeholder="Gib hier deinen Text ein" style="display: none;">
 
-        <div id="countdown"></div>
-        <p id="releaseText">Vollversion Release</p>
-
         <canvas id="pongGame" width="600" height="400"></canvas>
         <div id="visitorCount">Aktuelle Besucher: 0</div>
+        <div id="gameOverScreen">Game Over</div>
     </main>
 
     <script>
-        let keysPressed = [];
+        let canvas, ctx;
+        const paddleWidth = 10;
+        const paddleHeight = 100;
+        const paddleSpeed = 4;
+        const ballSize = 10;
+        let playerPaddleY = 0;
+        let computerPaddleY = 0;
+        let ballX, ballY, ballSpeedX, ballSpeedY;
+        let gameOver = false;
+        let keysPressed = {};
         let ws;
-        let visitorCount = document.getElementById('visitorCount');
-
-        document.addEventListener("keydown", (event) => {
-            keysPressed[event.key] = true;
-
-            // Handle Pong game activation
-            if (keysPressed['2'] && keysPressed['5'] && keysPressed['8']) {
-                document.getElementById("pongGame").style.display = "block";
-                startPongGame();
-                keysPressed = [];
-            }
-
-            // Handle visitor count display
-            if (keysPressed['t'] && keysPressed['u'] && keysPressed['o']) {
-                document.getElementById("visitorCount").style.display = "block";
-                fetchVisitorCount();
-                keysPressed = [];
-            }
-
-            // Show/hide the gif
-            if (event.key === "a") {
-                document.getElementById("altButton").style.display = "block";
-            }
-
-            // Toggle fullscreen mode
-            if (event.key === "f") {
-                toggleFullScreen();
-            }
-
-            // Open YouTube link
-            if (keysPressed['f'] && keysPressed['h'] && keysPressed['b']) {
-                window.open("https://www.youtube.com/watch?v=pwTzHbIXSlI", "_blank");
-                keysPressed = [];
-            }
-        });
-
-        document.addEventListener("keyup", (event) => {
-            keysPressed[event.key] = false;
-        });
-
-        function toggleDarkMode() {
-            const currentTheme = document.documentElement.getAttribute("data-theme");
-            const targetTheme = currentTheme === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", targetTheme);
-            localStorage.setItem("theme", targetTheme);
-        }
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
-            startCountdown();
             connectToWebSocket();
         });
 
@@ -246,95 +200,255 @@
             }
         });
 
+        document.addEventListener("keydown", (event) => {
+            keysPressed[event.key] = true;
+
+            // Handle Pong game activation
+            if (keysPressed['2'] && keysPressed['5'] && keysPressed['8']) {
+                document.getElementById("startPongButton").style.display = "block";
+                keysPressed = {};
+            }
+
+            // Handle visitor count display
+            if (keysPressed['t'] && keysPressed['u'] && keysPressed['o']) {
+                document.getElementById("visitorCount").style.display = "block";
+                fetchVisitorCount();
+                keysPressed = {};
+            }
+
+            // Show/hide the gif
+            if (event.key === "a") {
+                document.getElementById("altButton").style.display = "block";
+            }
+
+            // Toggle fullscreen mode
+            if (event.key === "f") {
+                toggleFullScreen();
+            }
+
+            // Open YouTube link
+            if (keysPressed['f'] && keysPressed['h'] && keysPressed['b']) {
+                window.open("https://www.youtube.com/watch?v=pwTzHbIXSlI", "_blank");
+                keysPressed = {};
+            }
+        });
+
+        document.addEventListener("keyup", (event) => {
+            keysPressed[event.key] = false;
+        });
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const targetTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", targetTheme);
+            localStorage.setItem("theme", targetTheme);
+        }
+
         function showGif() {
             document.getElementById("gifImage").style.display = "block";
         }
 
-        function startCountdown() {
-            const countdownDate = new Date("August 31, 2024 00:00:00").getTime();
-            const interval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = countdownDate - now;
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("countdown").innerHTML =
-                    `${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`;
-
-                if (distance < 0) {
-                    clearInterval(interval);
-                    document.getElementById("countdown").innerHTML = "Der Countdown ist abgelaufen!";
-                }
-            }, 1000);
-        }
-
         function toggleFullScreen() {
-            const canvas = document.getElementById("pongGame");
             if (!document.fullscreenElement) {
-                canvas.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
+                document.documentElement.requestFullscreen();
             } else {
-                document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
 
         function startPongGame() {
-            const canvas = document.getElementById("pongGame");
-            const ctx = canvas.getContext("2d");
-            let ballX = canvas.width / 2;
-            let ballY = canvas.height / 2;
-            let ballSpeedX = 5;
-            let ballSpeedY = 3;
+            canvas = document.getElementById("pongGame");
+            ctx = canvas.getContext("2d");
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = 3;
+            ballSpeedY = 3;
+            playerPaddleY = (canvas.height - paddleHeight) / 2;
+            computerPaddleY = (canvas.height - paddleHeight) / 2;
+            gameOver = false;
 
-            function drawRect(x, y, width, height, color) {
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, width, height);
+            // Add difficulty level selector
+            const difficulty = prompt("Wähle Schwierigkeit: 1 (Leicht), 2 (Mittel), 3 (Schwer)");
+            switch (difficulty) {
+                case '1':
+                    ballSpeedX = 2;
+                    ballSpeedY = 2;
+                    break;
+                case '2':
+                    ballSpeedX = 4;
+                    ballSpeedY = 4;
+                    break;
+                case '3':
+                    ballSpeedX = 6;
+                    ballSpeedY = 6;
+                    break;
+                default:
+                    alert("Ungültige Auswahl. Standard-Schwierigkeit (Mittel) wird verwendet.");
+                    ballSpeedX = 4;
+                    ballSpeedY = 4;
             }
 
-            function drawCircle(x, y, radius, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(x, y, radius, 0, Math.PI * 2, true);
-                ctx.fill();
-            }
-
-            function gameLoop() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                ballX += ballSpeedX;
-                ballY += ballSpeedY;
-
-                if (ballX + 10 > canvas.width || ballX - 10 < 0) {
-                    ballSpeedX = -ballSpeedX;
-                }
-
-                if (ballY + 10 > canvas.height || ballY - 10 < 0) {
-                    ballSpeedY = -ballSpeedY;
-                }
-
-                drawRect(0, 0, canvas.width, canvas.height, "#000000");
-                drawCircle(ballX, ballY, 10, "#ffffff");
-
-                requestAnimationFrame(gameLoop);
-            }
-
+            document.getElementById("startPongButton").style.display = "none";
+            document.getElementById("pongGame").style.display = "block";
+            document.getElementById("gameOverScreen").style.display = "none";
             gameLoop();
         }
 
-        function connectToWebSocket() {
-            ws = new WebSocket('ws://localhost:8080');
-            ws.onmessage = function(event) {
-                visitorCount.innerText = "Aktuelle Besucher: " + event.data;
-            };
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, playerPaddleY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, computerPaddleY, paddleWidth, paddleHeight);
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function update() {
+            if (gameOver) return;
+
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY - ballSize < 0 || ballY + ballSize > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if (ballX - ballSize < paddleWidth && ballY > playerPaddleY && ballY < playerPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballX + ballSize > canvas.width - paddleWidth && ballY > computerPaddleY && ballY < computerPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball out of bounds
+            if (ballX - ballSize < 0) {
+                showGameOver();
+                return; // Exit update to stop game
+            } else if (ballX + ballSize > canvas.width) {
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Computer paddle AI
+            if (ballY > computerPaddleY + paddleHeight / 2) {
+                computerPaddleY += paddleSpeed;
+            } else {
+                computerPaddleY -= paddleSpeed;
+            }
+
+            // Prevent computer paddle from going out of bounds
+            computerPaddleY = Math.max(Math.min(computerPaddleY, canvas.height - paddleHeight), 0);
+        }
+
+        function gameLoop() {
+            draw();
+            update();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function showGameOver() {
+            document.getElementById("gameOverScreen").style.display = "block";
+            document.getElementById("pongGame").style.display = "none";
+            gameOver = true;
         }
 
         function fetchVisitorCount() {
-            ws.send('getVisitorCount');
+            if (!ws) {
+                connectToWebSocket();
+            }
         }
+
+        function connectToWebSocket() {
+            ws = new WebSocket("wss://visitor-count-service.example.com");
+            ws.onmessage = function(event) {
+                document.getElementById("visitorCount").textContent = `Aktuelle Besucher: ${event.data}`;
+            };
+        }
+
+        // Add event listener for mouse movement
+        document.getElementById("pongGame").addEventListener("mousemove", (event) => {
+            if (!canvas) return;
+            const canvasRect = canvas.getBoundingClientRect();
+            const mouseY = event.clientY - canvasRect.top;
+            playerPaddleY = mouseY - paddleHeight / 2;
+            playerPaddleY = Math.max(Math.min(playerPaddleY, canvas.height - paddleHeight), 0);
+        });
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        console.error("stop fucking with the devtools, close this page.");
+        
     </script>
 </body>
 </html>
