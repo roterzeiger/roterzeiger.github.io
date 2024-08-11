@@ -3,9 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script> 
     <title>Hatte Langeweile</title>
+    <style>
+        :root {
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --accent-color: #007bff;
+            --button-bg-color: #007bff;
+            --button-text-color: #ffffff;
+            --input-border-color: #007bff;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1e1e1e;
+            --text-color: #f0f0f0;
+            --accent-color: #1e90ff;
+            --button-bg-color: #1e90ff;
+            --button-text-color: #ffffff;
+            --input-border-color: #1e90ff;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            position: relative;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 90%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .altButton {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .altButton {
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            cursor: pointer;
+        }
+
+        .altButton:hover {
+            opacity: 0.9;
+        }
+
+        .altButton {
+            border: 2px solid var(--input-border-color);
+        }
+
+        #gifImage {
+            margin-top: 15px;
+            display: none;
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        #successMessage {
+            margin-top: 20px;
+            font-size: 18px;
+            color: var(--accent-color);
+        }
+
+        #countdown {
+            font-size: 18px;
+            margin-top: 20px;
+            color: var(--accent-color);
+        }
+
+        #releaseText {
+            font-size: 16px;
+            margin-top: 15px;
+            color: var(--text-color);
+        }
+
+        #pongGame {
+            display: none;
+            margin-top: 20px;
+            background-color: var(--background-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        #visitorCount {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: var(--button-text-color);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .darkModeTogglePos {
+            position: absolute;
+        top: 0px;
+        right: 0px;
+        border: 3px transparent #ffffff;
+        padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 22px;
+            }
+
+            p, button, input, #countdown, #releaseText {
+                font-size: 16px;
+            }
+
+            #pongGame {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
 </head>
 <body>
     <main>
@@ -33,5 +173,168 @@
         <canvas id="pongGame" width="600" height="400"></canvas>
         <div id="visitorCount">Aktuelle Besucher: 0</div>
     </main>
+
+    <script>
+        let keysPressed = [];
+        let ws;
+        let visitorCount = document.getElementById('visitorCount');
+
+        document.addEventListener("keydown", (event) => {
+            keysPressed[event.key] = true;
+
+            // Handle Pong game activation
+            if (keysPressed['2'] && keysPressed['5'] && keysPressed['8']) {
+                document.getElementById("pongGame").style.display = "block";
+                startPongGame();
+                keysPressed = [];
+            }
+
+            // Handle visitor count display
+            if (keysPressed['t'] && keysPressed['u'] && keysPressed['o']) {
+                document.getElementById("visitorCount").style.display = "block";
+                fetchVisitorCount();
+                keysPressed = [];
+            }
+
+            // Show/hide the gif
+            if (event.key === "a") {
+                document.getElementById("altButton").style.display = "block";
+            }
+
+            // Toggle fullscreen mode
+            if (event.key === "f") {
+                toggleFullScreen();
+            }
+
+            // Open YouTube link
+            if (keysPressed['f'] && keysPressed['h'] && keysPressed['b']) {
+                window.open("https://www.youtube.com/watch?v=pwTzHbIXSlI", "_blank");
+                keysPressed = [];
+            }
+        });
+
+        document.addEventListener("keyup", (event) => {
+            keysPressed[event.key] = false;
+        });
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const targetTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", targetTheme);
+            localStorage.setItem("theme", targetTheme);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            startCountdown();
+            connectToWebSocket();
+        });
+
+        document.getElementById("passwordInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                const password = event.target.value;
+                const validPasswords = ["Roterzeiger", "ichübernehmees", "max", "sicher", "sjoker", "fujitsu", "ichhattelangeweile"];
+                if (validPasswords.includes(password)) {
+                    document.getElementById("passwordInput").style.display = "none";
+                    document.getElementById("textInput").style.display = "block";
+                    document.getElementById("successMessage").style.display = "block";
+                    document.getElementById("textInput").focus();
+                } else {
+                    alert("Falsches Passwort. Bitte versuche es erneut.");
+                }
+            }
+        });
+
+        function showGif() {
+            document.getElementById("gifImage").style.display = "block";
+        }
+
+        function startCountdown() {
+            const countdownDate = new Date("August 31, 2024 00:00:00").getTime();
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown").innerHTML =
+                    `${days} Tage ${hours} Stunden ${minutes} Minuten ${seconds} Sekunden`;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    document.getElementById("countdown").innerHTML = "Der Countdown ist abgelaufen!";
+                }
+            }, 1000);
+        }
+
+        function toggleFullScreen() {
+            const canvas = document.getElementById("pongGame");
+            if (!document.fullscreenElement) {
+                canvas.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function startPongGame() {
+            const canvas = document.getElementById("pongGame");
+            const ctx = canvas.getContext("2d");
+            let ballX = canvas.width / 2;
+            let ballY = canvas.height / 2;
+            let ballSpeedX = 5;
+            let ballSpeedY = 3;
+
+            function drawRect(x, y, width, height, color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, width, height);
+            }
+
+            function drawCircle(x, y, radius, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+                ctx.fill();
+            }
+
+            function gameLoop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ballX += ballSpeedX;
+                ballY += ballSpeedY;
+
+                if (ballX + 10 > canvas.width || ballX - 10 < 0) {
+                    ballSpeedX = -ballSpeedX;
+                }
+
+                if (ballY + 10 > canvas.height || ballY - 10 < 0) {
+                    ballSpeedY = -ballSpeedY;
+                }
+
+                drawRect(0, 0, canvas.width, canvas.height, "#000000");
+                drawCircle(ballX, ballY, 10, "#ffffff");
+
+                requestAnimationFrame(gameLoop);
+            }
+
+            gameLoop();
+        }
+
+        function connectToWebSocket() {
+            ws = new WebSocket('ws://localhost:8080');
+            ws.onmessage = function(event) {
+                visitorCount.innerText = "Aktuelle Besucher: " + event.data;
+            };
+        }
+
+        function fetchVisitorCount() {
+            ws.send('getVisitorCount');
+        }
+    </script>
 </body>
 </html>

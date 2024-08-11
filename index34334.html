@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script> 
+    <title>Hatte Langeweile</title>
+</head>
+<body>
+    <main>
+        <h2>Sinn der Website</h2>
+        <p>Ich hatte Langeweile</p>
+        <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively ge ts more difficult as it continues. The 20 met
+            er pacer test will begin in 30 sec
+            onds. Line up at the start. The runnin speed starts slowly, but gets faster each minute after you hear this signal. [beep] A singl
+            e lap should be completed each time you hear this sound. [ding] Remember to run in a straight line, and run as long as possible. The second time yo
+            u fail to complete aa lap before the sound, your test is over. The test will begin on the word start. On your mark
+            , get ready, start.</p>
+
+        <input type="image" src="mode.svg" height="30" width="30" class="darkModeTogglePos" onclick="toggleDarkMode()">
+
+        <button id="altButton" class="altButton" style="display: none;" onclick="showGif()">Drück mich</button>
+        <img id="gifImage" src="https://media.giphy.com/media/l4FGn8Asi6rrg5wVy/giphy.gif" alt="HAHA Funny gif">
+
+        <input class="altButton" type="password" id="passwordInput" placeholder="Passwort eingeben" style="display: none;">
+        <p id="successMessage" style="display: none;">Beta Ende: Vollversion kommt am 31.8.2024</p>
+        <input class="altButton" type="text" id="textInput" placeholder="Gib hier deinen Text ein" style="display: none;">
+
+        <div id="countdown"></div>
+        <p id="releaseText">Vollversion Release</p>
+
+        <canvas id="pongGame" width="600" height="400"></canvas>
+        <div id="visitorCount">Aktuelle Besucher: 0</div>
+    </main>
+</body>
+</html>
