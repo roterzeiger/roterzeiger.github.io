@@ -4,50 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hatte Langeweile</title>
+    <title>Hatte Langeweile</title>
     <style>
-        :root {
-            --background-color: #ffffff;
-            --text-color: #333333;
-            --accent-color: #007bff;
-            --button-bg-color: #007bff;
-            --button-text-color: #ffffff;
-            --input-border-color: #007bff;
-        }
-
-        [data-theme="dark"] {
-            --background-color: #1e1e1e;
-            --text-color: #f0f0f0;
-            --accent-color: #1e90ff;
-            --button-bg-color: #1e90ff;
-            --button-text-color: #ffffff;
-            --input-border-color: #1e90ff;
-        }
-
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
         main {
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 20px;
             max-width: 90%;
             width: 100%;
             box-sizing: border-box;
+            border-radius: 10px;
+            z-index: 1; /* Stelle sicher, dass der Inhalt über dem Hintergrund liegt */
         }
 
         h2 {
             margin-bottom: 10px;
             font-size: 24px;
-            color: var(--accent-color);
+            color: #007bff; /* Blau für "Sinn der Website" */
         }
 
         p {
@@ -62,11 +47,10 @@
             font-size: 16px;
             border: none;
             border-radius: 5px;
-            box-sizing: border-box;
-            background-color: var(--button-bg-color);
-            color: var(--button-text-color);
+            background-color: #007bff;
+            color: #ffffff;
             cursor: pointer;
-            border: 2px solid var(--input-border-color);
+            border: 2px solid #ffffff;
         }
 
         .altButton:hover {
@@ -74,6 +58,7 @@
         }
 
         #gifImage {
+            margin-top: 15px;
             margin-top: 15px;
             display: none;
             max-width: 100%;
@@ -84,14 +69,14 @@
         #successMessage {
             margin-top: 20px;
             font-size: 18px;
-            color: var(--accent-color);
+            color: #ffcc00;
         }
 
         #pongGame {
             display: none;
             margin-top: 20px;
-            background-color: var(--background-color);
-            border: 2px solid var(--accent-color);
+            background-color: #000000;
+            border: 2px solid #ffcc00;
         }
 
         #visitorCount {
@@ -99,19 +84,10 @@
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background-color: var(--accent-color);
-            color: var(--button-text-color);
+            background-color: #ffcc00;
+            color: #000000;
             padding: 10px;
             border-radius: 5px;
-        }
-
-        .darkModeTogglePos {
-            position: absolute;
-            top: 0;
-            right: 0;
-            border: 3px transparent #ffffff;
-            padding: 20px;
-            cursor: pointer;
         }
 
         @media (max-width: 600px) {
@@ -121,10 +97,18 @@
 
             p, .altButton {
                 font-size: 16px;
+            h2 {
+                font-size: 22px;
+            }
+
+            p, .altButton {
+                font-size: 16px;
             }
 
             #pongGame {
+            #pongGame {
                 width: 100%;
+                height: auto;
                 height: auto;
             }
         }
@@ -144,29 +128,94 @@
             font-size: 24px;
             z-index: 10;
         }
+
+        /* Galaxy Background */
+        #galaxy {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(8,10,38,1) 0%, rgba(2,2,34,1) 100%);
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Sterne Styling und Animation */
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkling 2s infinite ease-in-out alternate, moveStars 20s linear infinite;
+        }
+
+        @keyframes twinkling {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes moveStars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100vh); }
+        }
+
     </style>
 </head>
 <body>
+    <div id="galaxy"></div> <!-- Galaxy-Hintergrund -->
+
     <main>
-        <h2>Sinn der Website</h2>
+        <h2>Sinn der Website</h2> <!-- Jetzt in Blau -->
         <p>Ich hatte Langeweile</p>
         <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues...</p>
 
-        <input type="image" src="mode.svg" height="30" width="30" class="darkModeTogglePos" onclick="toggleDarkMode()">
-
         <button id="startPongButton" class="altButton" style="display: none;" onclick="startPongGame()">Starte Pong Spiel</button>
+        <!-- Entfernte den GIF-Button -->
+
         <img id="gifImage" src="https://media.giphy.com/media/l4FGn8Asi6rrg5wVy/giphy.gif" alt="HAHA Funny gif">
 
-        <input class="altButton" type="password" id="passwordInput" placeholder="Passwort eingeben" style="display: none;">
         <p id="successMessage" style="display: none;">Beta Ende: Vollversion kommt am 31.8.2024</p>
         <input class="altButton" type="text" id="textInput" placeholder="Gib hier deinen Text ein" style="display: none;">
 
         <canvas id="pongGame" width="600" height="400"></canvas>
         <div id="visitorCount">Aktuelle Besucher: 0</div>
         <div id="gameOverScreen">Game Over</div>
+        <canvas id="pongGame" width="600" height="400"></canvas>
+        <div id="visitorCount">Aktuelle Besucher: 0</div>
+        <div id="gameOverScreen">Game Over</div>
     </main>
 
     <script>
+        // Galaxy Background with Stars Animation
+        function createStars() {
+            const starCount = 150; // Anzahl der Sterne
+            const galaxy = document.getElementById("galaxy");
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+
+                // Zufällige Position und Größe für die Sterne
+                const size = Math.random() * 3 + 1 + "px";
+                const top = Math.random() * 100 + "%";
+                const left = Math.random() * 100 + "%";
+                const delay = Math.random() * 2 + "s"; // Zufällige Verzögerung für das Funkeln
+                const duration = Math.random() * 5 + 10 + "s"; // Verschiedene Geschwindigkeiten für die Bewegung der Sterne
+
+                star.style.width = size;
+                star.style.height = size;
+                star.style.top = top;
+                star.style.left = left;
+                star.style.animationDelay = delay;
+                star.style.animationDuration = duration;
+
+                galaxy.appendChild(star);
+            }
+        }
+
+        createStars(); // Rufe die Funktion auf, um die Sterne zu erstellen
+
         let canvas, ctx;
         const paddleWidth = 10;
         const paddleHeight = 100;
@@ -178,27 +227,6 @@
         let gameOver = false;
         let keysPressed = {};
         let ws;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedTheme = localStorage.getItem("theme") || "light";
-            document.documentElement.setAttribute("data-theme", savedTheme);
-            connectToWebSocket();
-        });
-
-        document.getElementById("passwordInput").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                const password = event.target.value;
-                const validPasswords = ["Roterzeiger", "ichübernehmees", "max", "sicher", "sjoker", "fujitsu", "ichhattelangeweile"];
-                if (validPasswords.includes(password)) {
-                    document.getElementById("passwordInput").style.display = "none";
-                    document.getElementById("textInput").style.display = "block";
-                    document.getElementById("successMessage").style.display = "block";
-                    document.getElementById("textInput").focus();
-                } else {
-                    alert("Falsches Passwort. Bitte versuche es erneut.");
-                }
-            }
-        });
 
         document.addEventListener("keydown", (event) => {
             keysPressed[event.key] = true;
@@ -218,7 +246,7 @@
 
             // Show/hide the gif
             if (event.key === "a") {
-                document.getElementById("altButton").style.display = "block";
+                document.getElementById("gifImage").style.display = "block";
             }
 
             // Toggle fullscreen mode
@@ -226,33 +254,25 @@
                 toggleFullScreen();
             }
 
-            // Open YouTube link
+            // Open THINK FAST
             if (keysPressed['f'] && keysPressed['h'] && keysPressed['b']) {
                 window.open("https://www.youtube.com/watch?v=pwTzHbIXSlI", "_blank");
                 keysPressed = {};
             }
+
             // Open AMOGUS
             if (keysPressed['a'] && keysPressed['u'] && keysPressed['s']) {
-            window.open("https://roterzeiger.github.io/amogus/", "_blank");
-            keysPressed = {};
+                window.open("https://roterzeiger.github.io/amogus/", "_blank");
+                keysPressed = {};
+            }
+            // Open aughhhh
+            if (keysPressed['b'] && keysPressed['a'] && keysPressed['m']) {
+                window.open("https://roterzeiger.github.io/amogus/think.mp4", "_blank");
+                keysPressed = {};
             }
         });
 
-        document.addEventListener("keyup", (event) => {
-            keysPressed[event.key] = false;
-        });
-
-        function toggleDarkMode() {
-            const currentTheme = document.documentElement.getAttribute("data-theme");
-            const targetTheme = currentTheme === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", targetTheme);
-            localStorage.setItem("theme", targetTheme);
-        }
-
-        function showGif() {
-            document.getElementById("gifImage").style.display = "block";
-        }
-
+        // Fullscreen toggle function
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -266,36 +286,13 @@
         function startPongGame() {
             canvas = document.getElementById("pongGame");
             ctx = canvas.getContext("2d");
+            playerPaddleY = canvas.height / 2 - paddleHeight / 2;
+            computerPaddleY = canvas.height / 2 - paddleHeight / 2;
             ballX = canvas.width / 2;
             ballY = canvas.height / 2;
             ballSpeedX = 3;
             ballSpeedY = 3;
-            playerPaddleY = (canvas.height - paddleHeight) / 2;
-            computerPaddleY = (canvas.height - paddleHeight) / 2;
             gameOver = false;
-
-            // Add difficulty level selector
-            const difficulty = prompt("Wähle Schwierigkeit: 1 (Leicht), 2 (Mittel), 3 (Schwer)");
-            switch (difficulty) {
-                case '1':
-                    ballSpeedX = 2;
-                    ballSpeedY = 2;
-                    break;
-                case '2':
-                    ballSpeedX = 4;
-                    ballSpeedY = 4;
-                    break;
-                case '3':
-                    ballSpeedX = 6;
-                    ballSpeedY = 6;
-                    break;
-                default:
-                    alert("Ungültige Auswahl. Standard-Schwierigkeit (Mittel) wird verwendet.");
-                    ballSpeedX = 4;
-                    ballSpeedY = 4;
-            }
-
-            document.getElementById("startPongButton").style.display = "none";
             document.getElementById("pongGame").style.display = "block";
             document.getElementById("gameOverScreen").style.display = "none";
             gameLoop();
@@ -303,94 +300,75 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = "white";
+
+            // Player paddle
             ctx.fillRect(0, playerPaddleY, paddleWidth, paddleHeight);
+
+            // Computer paddle
             ctx.fillRect(canvas.width - paddleWidth, computerPaddleY, paddleWidth, paddleHeight);
+
+            // Ball
             ctx.beginPath();
             ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
             ctx.fill();
         }
 
         function update() {
-            if (gameOver) return;
-
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
-            // Ball collision with top and bottom
-            if (ballY - ballSize < 0 || ballY + ballSize > canvas.height) {
+            // Ball collision with top/bottom walls
+            if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
                 ballSpeedY = -ballSpeedY;
             }
 
-            // Ball collision with paddles
-            if (ballX - ballSize < paddleWidth && ballY > playerPaddleY && ballY < playerPaddleY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            if (ballX + ballSize > canvas.width - paddleWidth && ballY > computerPaddleY && ballY < computerPaddleY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            }
-
             // Ball out of bounds
-            if (ballX - ballSize < 0) {
-                showGameOver();
-                return; // Exit update to stop game
-            } else if (ballX + ballSize > canvas.width) {
-                ballX = canvas.width / 2;
-                ballY = canvas.height / 2;
+            if (ballX + ballSize > canvas.width || ballX - ballSize < 0) {
+                gameOver = true;
+                document.getElementById("gameOverScreen").style.display = "block";
+                document.getElementById("pongGame").style.display = "none";
+            }
+
+            // Ball collision with paddles
+            if (
+                ballX - ballSize < paddleWidth &&
+                ballY > playerPaddleY &&
+                ballY < playerPaddleY + paddleHeight
+            ) {
+                ballSpeedX = -ballSpeedX;
+            } else if (
+                ballX + ballSize > canvas.width - paddleWidth &&
+                ballY > computerPaddleY &&
+                ballY < computerPaddleY + paddleHeight
+            ) {
                 ballSpeedX = -ballSpeedX;
             }
 
-            // Computer paddle AI
-            if (ballY > computerPaddleY + paddleHeight / 2) {
+            // Simple computer AI
+            if (computerPaddleY + paddleHeight / 2 < ballY) {
                 computerPaddleY += paddleSpeed;
-            } else {
+            } else if (computerPaddleY + paddleHeight / 2 > ballY) {
                 computerPaddleY -= paddleSpeed;
             }
-
-            // Prevent computer paddle from going out of bounds
-            computerPaddleY = Math.max(Math.min(computerPaddleY, canvas.height - paddleHeight), 0);
         }
 
         function gameLoop() {
-            draw();
-            update();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function showGameOver() {
-            document.getElementById("gameOverScreen").style.display = "block";
-            document.getElementById("pongGame").style.display = "none";
-            gameOver = true;
-        }
-
-        function fetchVisitorCount() {
-            if (!ws) {
-                connectToWebSocket();
+            if (!gameOver) {
+                draw();
+                update();
+                requestAnimationFrame(gameLoop);
             }
         }
 
-        function connectToWebSocket() {
-            ws = new WebSocket("wss://visitor-count-service.example.com");
-            ws.onmessage = function(event) {
-                document.getElementById("visitorCount").textContent = `Aktuelle Besucher: ${event.data}`;
-            };
+        function fetchVisitorCount() {
+            fetch('https://example.com/visitor-count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("visitorCount").textContent = `Aktuelle Besucher: ${data.count}`;
+                })
+                .catch(error => console.error('Fehler beim Abrufen der Besucheranzahl:', error));
         }
-
-        // Add event listener for mouse movement
-        document.getElementById("pongGame").addEventListener("mousemove", (event) => {
-            if (!canvas) return;
-            const canvasRect = canvas.getBoundingClientRect();
-            const mouseY = event.clientY - canvasRect.top;
-            playerPaddleY = mouseY - paddleHeight / 2;
-            playerPaddleY = Math.max(Math.min(playerPaddleY, canvas.height - paddleHeight), 0);
-        });
-        console.error("stop fucking with the devtools, close this page.");
-        console.error("stop fucking with the devtools, close this page.");
-        console.error("stop fucking with the devtools, close this page.");
-        console.error("stop fucking with the devtools, close this page.");
-        console.error("stop fucking with the devtools, close this page.");
-        console.error("stop fucking with the devtools, close this page.");
     </script>
 </body>
 </html>
