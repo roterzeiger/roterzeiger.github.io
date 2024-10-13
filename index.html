@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hatte Langeweile</title>
+    <title>Ich hatte Langeweile</title>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            background-color: #000;
         }
 
         main {
@@ -25,101 +26,79 @@
             width: 100%;
             box-sizing: border-box;
             border-radius: 10px;
-            z-index: 1; /* Stelle sicher, dass der Inhalt über dem Hintergrund liegt */
+            z-index: 1;
         }
 
         h2 {
             margin-bottom: 10px;
             font-size: 24px;
-            color: #007bff; /* Blau für "Sinn der Website" */
+            color: #007bff;
         }
 
         p {
             margin-top: 0;
             font-size: 18px;
         }
-
-        .altButton {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 16px;
+        .randomButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff; 
+            color: #ffffff; 
+            padding: 10px 15px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff;
-            color: #ffffff;
             cursor: pointer;
-            border: 2px solid #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.3s; 
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); 
         }
 
-        .altButton:hover {
-            opacity: 0.9;
+        .randomButton:hover {
+            background-color: #0056b3; 
+            transform: scale(1.05); 
         }
 
-        #gifImage {
-            margin-top: 15px;
-            display: none;
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-        }
-
-        #successMessage {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #ffcc00;
-        }
-
-        #pongGame {
-            display: none;
-            margin-top: 20px;
-            background-color: #000000;
-            border: 2px solid #ffcc00;
-        }
-
-        #visitorCount {
-            display: none;
+        
+        .muteButton {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background-color: #ffcc00;
-            color: #000000;
-            padding: 10px;
+            background-color: #ff0000;
+            color: #ffffff; 
+            padding: 10px 15px;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3); 
+        }
+
+        .muteButton:hover {
+            background-color: #cc0000; 
+            transform: scale(1.05); 
         }
 
         @media (max-width: 600px) {
+            body {
+                height: auto;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
             h2 {
                 font-size: 22px;
             }
 
-            p, .altButton {
+            p {
                 font-size: 16px;
             }
-
-            #pongGame {
-                width: 100%;
-                height: auto;
-            }
         }
 
-        /* Game Over Screen */
-        #gameOverScreen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            text-align: center;
-            padding-top: 20%;
-            font-size: 24px;
-            z-index: 10;
-        }
-
-        /* Galaxy Background */
+       
         #galaxy {
             position: absolute;
             top: 0;
@@ -131,7 +110,7 @@
             overflow: hidden;
         }
 
-        /* Sterne Styling und Animation */
+        
         .star {
             position: absolute;
             background-color: white;
@@ -149,46 +128,38 @@
             from { transform: translateY(0); }
             to { transform: translateY(-100vh); }
         }
-
     </style>
 </head>
 <body>
-    <div id="galaxy"></div> <!-- Galaxy-Hintergrund -->
+    <div id="galaxy"></div>
+
+    
+    <button class="randomButton" onclick="openRandomLink()">Random</button>
+
+   
+    <button class="muteButton" id="muteButton" onclick="toggleMute()">Stumm</button>
 
     <main>
-        <h2>Sinn der Website</h2> <!-- Jetzt in Blau -->
+        <h2>Sinn der Website</h2>
         <p>Ich hatte Langeweile</p>
-        <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues...</p>
-
-        <button id="startPongButton" class="altButton" style="display: none;" onclick="startPongGame()">Starte Pong Spiel</button>
-        <!-- Entfernte den GIF-Button -->
-
-        <img id="gifImage" src="https://media.giphy.com/media/l4FGn8Asi6rrg5wVy/giphy.gif" alt="HAHA Funny gif">
-
-        <p id="successMessage" style="display: none;">Beta Ende: Vollversion kommt am 31.8.2024</p>
-        <input class="altButton" type="text" id="textInput" placeholder="Gib hier deinen Text ein" style="display: none;">
-
-        <canvas id="pongGame" width="600" height="400"></canvas>
-        <div id="visitorCount">Aktuelle Besucher: 0</div>
-        <div id="gameOverScreen">Game Over</div>
+        <p>The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly</p>
     </main>
 
     <script>
-        // Galaxy Background with Stars Animation
+      
         function createStars() {
-            const starCount = 150; // Anzahl der Sterne
+            const starCount = 150;
             const galaxy = document.getElementById("galaxy");
 
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement("div");
                 star.classList.add("star");
 
-                // Zufällige Position und Größe für die Sterne
                 const size = Math.random() * 3 + 1 + "px";
                 const top = Math.random() * 100 + "%";
                 const left = Math.random() * 100 + "%";
-                const delay = Math.random() * 2 + "s"; // Zufällige Verzögerung für das Funkeln
-                const duration = Math.random() * 5 + 10 + "s"; // Verschiedene Geschwindigkeiten für die Bewegung der Sterne
+                const delay = Math.random() * 2 + "s";
+                const duration = Math.random() * 5 + 10 + "s";
 
                 star.style.width = size;
                 star.style.height = size;
@@ -201,161 +172,74 @@
             }
         }
 
-        createStars(); // Rufe die Funktion auf, um die Sterne zu erstellen
+        createStars(); 
 
-        let canvas, ctx;
-        const paddleWidth = 10;
-        const paddleHeight = 100;
-        const paddleSpeed = 4;
-        const ballSize = 10;
-        let playerPaddleY = 0;
-        let computerPaddleY = 0;
-        let ballX, ballY, ballSpeedX, ballSpeedY;
-        let gameOver = false;
-        let keysPressed = {};
-        let ws;
+       
+        const links = [
+            "https://tylerpalko.github.io/Is-My-Computer-ON/",
+            "https://www.youtube.com/watch?v=a4na2opArGY",
+            "https://www.youtube.com/watch?v=1rkUcw9INLI&t=7s",
+            "https://www.youtube.com/watch?v=kuABN_OYoVg",
+            "https://eveee00.github.io/",
+        ];
 
-        document.addEventListener("keydown", (event) => {
-            keysPressed[event.key] = true;
-
-            // Handle Pong game activation
-            if (keysPressed['2'] && keysPressed['5'] && keysPressed['8']) {
-                document.getElementById("startPongButton").style.display = "block";
-                keysPressed = {};
-            }
-
-            // Handle visitor count display
-            if (keysPressed['t'] && keysPressed['u'] && keysPressed['o']) {
-                document.getElementById("visitorCount").style.display = "block";
-                fetchVisitorCount();
-                keysPressed = {};
-            }
-
-            // Show/hide the gif
-            if (event.key === "a") {
-                document.getElementById("gifImage").style.display = "block";
-            }
-
-            // Toggle fullscreen mode
-            if (event.key === "f") {
-                toggleFullScreen();
-            }
-
-            // Open THINK FAST
-            if (keysPressed['f'] && keysPressed['h'] && keysPressed['b']) {
-                window.open("https://www.youtube.com/watch?v=pwTzHbIXSlI", "_blank");
-                keysPressed = {};
-            }
-
-            // Open AMOGUS
-            if (keysPressed['a'] && keysPressed['u'] && keysPressed['s']) {
-                window.open("https://roterzeiger.github.io/amogus/", "_blank");
-                keysPressed = {};
-            }
-            // Open aughhhh
-            if (keysPressed['b'] && keysPressed['a'] && keysPressed['m']) {
-                window.open("https://roterzeiger.github.io/amogus/think.mp4", "_blank");
-                keysPressed = {};
-            }
-        });
-
-        // Fullscreen toggle function
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
+        
+        function openRandomLink() {
+            const randomIndex = Math.floor(Math.random() * links.length);
+            const randomLink = links[randomIndex];
+            window.open(randomLink, "_blank");
         }
 
-        function startPongGame() {
-            canvas = document.getElementById("pongGame");
-            ctx = canvas.getContext("2d");
-            playerPaddleY = canvas.height / 2 - paddleHeight / 2;
-            computerPaddleY = canvas.height / 2 - paddleHeight / 2;
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-            ballSpeedX = 3;
-            ballSpeedY = 3;
-            gameOver = false;
-            document.getElementById("pongGame").style.display = "block";
-            document.getElementById("gameOverScreen").style.display = "none";
-            gameLoop();
+        
+        let isMuted = false;
+        const sounds = [
+            "GLaDOS-15.wav",
+            "GLaDOS-40.wav",
+            "GLaDOS-11.wav",
+            "GLaDOS-7.wav",
+            "GLaDOS-5.wav",
+            "GLaDOS-1.wav",
+            "GLaDOS-4.wav",
+            "GLaDOS-10.wav",
+            "GLaDOS-75.wav",
+            "GLaDOS-99.wav",
+            "GLaDOS-104.wav",
+            "GLaDOS-690046.wav",
+            "GLaDOS-690047.wav",
+            "GLaDOS-690055.wav",
+            "GLaDOS-690128.wav",
+            "GLaDOS-690138.wav",
+            "GLaDOS-690150.wav",
+            "GLaDOS-690161.wav",
+            "GLaDOS-690189.wav",
+            "GLaDOS-690195.wav",
+            "GLaDOS-690196.wav",
+            "GLaDOS-690197.wav",
+            "GLaDOS-690201.wav",
+            "GLaDOS-690218.wav",
+            "GLaDOS-690225.wav",
+            "GLaDOS-690230.wav",
+            "GLaDOS-690244.wav",
+            "GLaDOS-690252.wav",
+            "GLaDOS-690260.wav",
+            "GLaDOS-690276.wav",
+            "GLaDOS-tts-I'll-take-it.wav",
+
+        ];
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('muteButton').textContent = isMuted ? "Unmute" : "Stumm";
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-
-            // Player paddle
-            ctx.fillRect(0, playerPaddleY, paddleWidth, paddleHeight);
-
-            // Computer paddle
-            ctx.fillRect(canvas.width - paddleWidth, computerPaddleY, paddleWidth, paddleHeight);
-
-            // Ball
-            ctx.beginPath();
-            ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function update() {
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
-
-            // Ball collision with top/bottom walls
-            if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
-                ballSpeedY = -ballSpeedY;
+        
+        setInterval(() => {
+            if (!isMuted) {
+                const randomIndex = Math.floor(Math.random() * sounds.length);
+                const audio = new Audio(sounds[randomIndex]);
+                audio.play();
             }
-
-            // Ball out of bounds
-            if (ballX + ballSize > canvas.width || ballX - ballSize < 0) {
-                gameOver = true;
-                document.getElementById("gameOverScreen").style.display = "block";
-                document.getElementById("pongGame").style.display = "none";
-            }
-
-            // Ball collision with paddles
-            if (
-                ballX - ballSize < paddleWidth &&
-                ballY > playerPaddleY &&
-                ballY < playerPaddleY + paddleHeight
-            ) {
-                ballSpeedX = -ballSpeedX;
-            } else if (
-                ballX + ballSize > canvas.width - paddleWidth &&
-                ballY > computerPaddleY &&
-                ballY < computerPaddleY + paddleHeight
-            ) {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            // Simple computer AI
-            if (computerPaddleY + paddleHeight / 2 < ballY) {
-                computerPaddleY += paddleSpeed;
-            } else if (computerPaddleY + paddleHeight / 2 > ballY) {
-                computerPaddleY -= paddleSpeed;
-            }
-        }
-
-        function gameLoop() {
-            if (!gameOver) {
-                draw();
-                update();
-                requestAnimationFrame(gameLoop);
-            }
-        }
-
-        function fetchVisitorCount() {
-            fetch('https://example.com/visitor-count')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("visitorCount").textContent = `Aktuelle Besucher: ${data.count}`;
-                })
-                .catch(error => console.error('Fehler beim Abrufen der Besucheranzahl:', error));
-        }
+        }, 60000); 
     </script>
 </body>
 </html>
