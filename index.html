@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 7 Desktop Simulation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            background: url('https://static.wikitide.net/windowswallpaperwiki/5/50/Img0_%28Windows_7%29.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #startScreen h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #loadingBar {
+            width: 300px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #loadingProgress {
+            width: 0;
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        #desktop {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+        }
+
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .start-button {
+            width: 40px;
+            height: 40px;
+            background: url('https://i.imgur.com/3ZQZQZm.png') no-repeat center center;
+            background-size: 60%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .taskbar-icons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        .taskbar-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .system-tray {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 10px;
+        }
+
+        .clock {
+            font-size: 14px;
+        }
+
+        .desktop-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 40px);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            z-index: 1;
+        }
+
+        .desktop-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .desktop-icon img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 5px;
+        }
+
+        .window {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            background: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+        }
+
+        .window-header {
+            background: linear-gradient(to bottom, #f9f9f9, #e5e5e5);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            border-radius: 5px 5px 0 0;
+            cursor: move;
+        }
+
+        .window-header .title {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-controls button {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .window-controls .minimize {
+            background: #ffcc00;
+        }
+
+        .window-controls .maximize {
+            background: #00cc66;
+        }
+
+        .window-controls .close {
+            background: #ff6666;
+        }
+
+        .window-body {
+            flex-grow: 1;
+            background: white;
+            padding: 10px;
+            overflow-y: auto;
+            border-radius: 0 0 5px 5px;
+            color: #333;
+        }
+
+        #settingsWindow .window-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #settingsWindow label {
+            font-weight: bold;
+        }
+
+        #settingsWindow select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Terminal-spezifische Stile */
+        .terminal-body {
+            background: black;
+            color: #00ff00;
+            padding: 10px;
+            height: 100%;
+            font-family: monospace;
+            overflow-y: auto;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .terminal-input {
+            background: black;
+            color: #00ff00;
+            border: none;
+            outline: none;
+            font-family: monospace;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <h1>Windows wird gestartet...</h1>
+        <div id="loadingBar">
+            <div id="loadingProgress"></div>
+        </div>
+    </div>
+
+    <div id="desktop">
+        <div class="taskbar">
+            <button class="start-button"></button>
+            <div class="taskbar-icons">
+                <div class="taskbar-icon" id="taskbarExplorer">📁</div>
+                <div class="taskbar-icon" id="taskbarNotepad">📝</div>
+                <div class="taskbar-icon" id="taskbarSettings">⚙️</div>
+            </div>
+            <div class="system-tray">
+                <div class="clock" id="clock"></div>
+            </div>
+        </div>
+
+        <div class="desktop-icons">
+            <div class="desktop-icon" id="desktopExplorer">
+                <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png" alt="Explorer">
+                <span>Explorer</span>
+            </div>
+            <div class="desktop-icon" id="desktopNotepad">
+                <img src="https://cdn-icons-png.flaticon.com/512/2306/2306146.png" alt="Notepad">
+                <span>Notepad</span>
+            </div>
+            <div class="desktop-icon" id="desktopSettings">
+                <img src="https://cdn-icons-png.flaticon.com/512/2099/2099192.png" alt="Einstellungen">
+                <span>Einstellungen</span>
+            </div>
+            <div class="desktop-icon" id="desktopCalculator">
+                <img src="https://cdn.discordapp.com/attachments/947860877346996276/1353465550600409118/one-v-buck-dpf.png?ex=67e1c085&is=67e06f05&hm=8bfbec85f2be7334fb5419898faa17899f85a4718f1cc719e2ef3a4105448a95&" alt="vbux">
+                <span>free vbux</span>
+            </div>
+            <div class="desktop-icon" id="desktopTerminal">
+                <img src="https://cdn-icons-png.flaticon.com/512/1388/1388961.png" alt="Terminal">
+                <span>Terminal</span>
+            </div>
+            <!-- Steam-Icon (wird später hinzugefügt) -->
+            <div id="steamIcon" class="desktop-icon" style="display: none;">
+                <img src="https://cdn-icons-png.flaticon.com/512/6124/6124995.png" alt="Steam">
+                <span>Steam</span>
+            </div>
+        </div>
+
+        <div id="explorerWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">Explorer</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeExplorer">X</button>
+                </div>
+            </div>
+            <div class="window-body">
+                <h1>Willkommen im Explorer!</h1>
+                <p>Hier könnten Dateien und Ordner angezeigt werden.</p>
+            </div>
+        </div>
+
+        <div id="notepadWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">Notepad</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeNotepad">X</button>
+                </div>
+            </div>
+            <div class="window-body">
+                <textarea style="width: 100%; height: 100%; border: none; padding: 10px; font-family: Arial, sans-serif;"></textarea>
+            </div>
+        </div>
+
+        <div id="settingsWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">Einstellungen</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeSettings">X</button>
+                </div>
+            </div>
+            <div class="window-body">
+                <label for="backgroundSelect">Hintergrund ändern:</label>
+                <select id="backgroundSelect">
+                    <option value="https://static.wikitide.net/windowswallpaperwiki/5/50/Img0_%28Windows_7%29.jpg">Standard</option>
+                    <option value="https://windowswallpaper.miraheze.org/wiki/Windows_7#/media/File:Img2_(Windows_7).jpg">Natur</option>
+                    <option value="https://windowswallpaper.miraheze.org/wiki/Windows_7#/media/File:Img7_(Windows_7).jpg">Klassisch</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="calculatorWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">lol</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeCalculator">X</button>
+                </div>
+            </div>
+            <div class="window-body">
+                <video src="https://eveee00.xyz/media/trol.mp4" autoplay controls></video>
+            </div>
+        </div>
+
+        <div id="terminalWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">Terminal</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeTerminal">X</button>
+                </div>
+            </div>
+            <div class="window-body terminal-body" id="terminalBody">
+                <div class="terminal-output">
+Microsoft Windows [Version 10.0.19045.3693]
+(c) Microsoft Corporation. Alle Rechte vorbehalten.
+
+C:\Users\Benutzer>
+                </div>
+                <div class="terminal-input-line">
+                    <span>C:\Users\Benutzer></span>
+                    <input type="text" class="terminal-input" id="terminalInput" autofocus>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const startScreen = document.getElementById("startScreen");
+        const desktop = document.getElementById("desktop");
+        const loadingProgress = document.getElementById("loadingProgress");
+
+        function simulateStartup() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                loadingProgress.style.width = `${progress}%`;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    startScreen.style.display = 'none';
+                    desktop.style.display = 'block';
+                }
+            }, 500);
+        }
+
+        simulateStartup();
+
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString();
+            const date = now.toLocaleDateString();
+            document.getElementById("clock").innerText = `${time} | ${date}`;
+        }
+
+        function openWindow(windowId) {
+            document.getElementById(windowId).style.display = 'flex';
+        }
+
+        function closeWindow(windowId) {
+            document.getElementById(windowId).style.display = 'none';
+        }
+
+        document.getElementById("desktopExplorer").addEventListener("click", function() {
+            openWindow("explorerWindow");
+        });
+
+        document.getElementById("taskbarExplorer").addEventListener("click", function() {
+            openWindow("explorerWindow");
+        });
+
+        document.getElementById("closeExplorer").addEventListener("click", function() {
+            closeWindow("explorerWindow");
+        });
+
+        document.getElementById("desktopNotepad").addEventListener("click", function() {
+            openWindow("notepadWindow");
+        });
+
+        document.getElementById("taskbarNotepad").addEventListener("click", function() {
+            openWindow("notepadWindow");
+        });
+
+        document.getElementById("closeNotepad").addEventListener("click", function() {
+            closeWindow("notepadWindow");
+        });
+
+        document.getElementById("desktopSettings").addEventListener("click", function() {
+            openWindow("settingsWindow");
+        });
+
+        document.getElementById("taskbarSettings").addEventListener("click", function() {
+            openWindow("settingsWindow");
+        });
+
+        document.getElementById("closeSettings").addEventListener("click", function() {
+            closeWindow("settingsWindow");
+        });
+
+        document.getElementById("desktopCalculator").addEventListener("click", function() {
+            openWindow("calculatorWindow");
+        });
+
+        document.getElementById("closeCalculator").addEventListener("click", function() {
+            closeWindow("calculatorWindow");
+        });
+
+        document.getElementById("desktopTerminal").addEventListener("click", function() {
+            openWindow("terminalWindow");
+            terminalInput.focus();
+        });
+
+        document.getElementById("closeTerminal").addEventListener("click", function() {
+            closeWindow("terminalWindow");
+        });
+
+        const backgroundSelect = document.getElementById("backgroundSelect");
+        backgroundSelect.addEventListener("change", function() {
+            document.body.style.backgroundImage = `url('${this.value}')`;
+        });
+
+        function makeDraggable(windowElement) {
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            windowElement.querySelector(".window-header").addEventListener("mousedown", function(e) {
+                isDragging = true;
+                offsetX = e.clientX - windowElement.offsetLeft;
+                offsetY = e.clientY - windowElement.offsetTop;
+            });
+
+            document.addEventListener("mousemove", function(e) {
+                if (isDragging) {
+                    windowElement.style.left = (e.clientX - offsetX) + "px";
+                    windowElement.style.top = (e.clientY - offsetY) + "px";
+                }
+            });
+
+            document.addEventListener("mouseup", function() {
+                isDragging = false;
+            });
+        }
+
+        makeDraggable(document.getElementById("explorerWindow"));
+        makeDraggable(document.getElementById("notepadWindow"));
+        makeDraggable(document.getElementById("settingsWindow"));
+        makeDraggable(document.getElementById("calculatorWindow"));
+        makeDraggable(document.getElementById("terminalWindow"));
+
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Terminal-Funktionalität
+        const terminalBody = document.getElementById("terminalBody");
+        const terminalInput = document.getElementById("terminalInput");
+        const steamIcon = document.getElementById("steamIcon");
+        let commandHistory = [];
+        let historyIndex = -1;
+
+        const neofetchData = `
+            OS: Windows 7 Ultimate x86_64
+            Host: Virtual Machine QEMU
+            Kernel: 6.1.0-10-generic
+            Uptime: 2 hours 35 mins
+            Shell: cmd.exe 1.2.3
+            CPU: Intel i7-8700K (12) @ 3.70GHz
+            GPU: NVIDIA GeForce RTX 3080
+            Memory: 4096MB / 8192MB
+            Disk: 128GB / 256GB
+        `;
+
+        function addTerminalOutput(text) {
+            const output = document.createElement("div");
+            output.className = "terminal-output";
+            output.textContent = text;
+            terminalBody.insertBefore(output, terminalBody.lastElementChild);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        function handleCommand(command) {
+            addTerminalOutput(`C:\\Users\\Benutzer> ${command}`);
+            
+            if(command === "sudo apt install steam") {
+                addTerminalOutput("Paketlisten werden gelesen... Fertig");
+                addTerminalOutput("Abhängigkeitsbaum wird aufgebaut... Fertig");
+                addTerminalOutput("Die folgenden zusätzlichen Pakete werden installiert:");
+                addTerminalOutput("  steam-libs steam-client");
+                addTerminalOutput("Die folgenden NEUEN Pakete werden installiert:");
+                addTerminalOutput("  steam steam-libs steam-client");
+                addTerminalOutput("0 aktualisiert, 3 neu installiert, 0 zu entfernen und 0 nicht aktualisiert.");
+                addTerminalOutput("Es werden 250 MB an Archiven heruntergeladen.");
+                addTerminalOutput("Nach dieser Operation werden 1.200 MB Plattenplatz zusätzlich benutzt.");
+                addTerminalOutput("Fortfahren? [J/n] J");
+                addTerminalOutput("Empfange:1 http://de.archive.ubuntu.com/ubuntu focal/main amd64 steam amd64 1.0.0.1 [250 MB]");
+                addTerminalOutput("Es wurden 250 MB in 5 s geholt (50,0 MB/s).");
+                addTerminalOutput("Vormals nicht ausgewähltes Paket steam wird gewählt.");
+                addTerminalOutput("Vormals nicht ausgewähltes Paket steam-libs wird gewählt.");
+                addTerminalOutput("Vormals nicht ausgewähltes Paket steam-client wird gewählt.");
+                addTerminalOutput("Installiere steam (1.0.0.1) ...");
+                addTerminalOutput("Installiere steam-libs (1.0.0.1) ...");
+                addTerminalOutput("Installiere steam-client (1.0.0.1) ...");
+                addTerminalOutput("Steam wurde erfolgreich installiert.");
+                addTerminalOutput("Ein Steam-Icon wurde auf dem Desktop erstellt.");
+
+                // Steam-Icon anzeigen
+                steamIcon.style.display = "flex";
+            } 
+            else if(command === "help") {
+                addTerminalOutput("Verfügbare Befehle:\nneofetch - Systeminformationen anzeigen\nhelp - Diese Hilfe anzeigen\ncls - Bildschirm löschen\nsudo apt install steam - Steam installieren");
+            }
+            else if(command === "cls") {
+                terminalBody.innerHTML = '<div class="terminal-input-line"><span>C:\\Users\\Benutzer></span><input type="text" class="terminal-input" id="terminalInput" autofocus></div>';
+                terminalInput = document.getElementById("terminalInput");
+                setupTerminalInput();
+            }
+            else {
+                addTerminalOutput(`'${command}' wird nicht als interner oder externer Befehl erkannt`);
+            }
+
+            commandHistory.push(command);
+            historyIndex = commandHistory.length;
+            terminalInput.value = "";
+        }
+
+        function setupTerminalInput() {
+            terminalInput.addEventListener("keydown", (e) => {
+                if(e.key === "Enter") {
+                    handleCommand(terminalInput.value.trim().toLowerCase());
+                }
+                if(e.key === "ArrowUp") {
+                    if(historyIndex > 0) {
+                        historyIndex--;
+                        terminalInput.value = commandHistory[historyIndex];
+                    }
+                }
+                if(e.key === "ArrowDown") {
+                    if(historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        terminalInput.value = commandHistory[historyIndex];
+                    }
+                }
+            });
+        }
+
+        // Steam-Icon öffnen
+        steamIcon.addEventListener("click", function() {
+            window.open("https://store.steampowered.com/", "_blank");
+        });
+
+        setupTerminalInput();
+    </script>
+</body>
+</html>
