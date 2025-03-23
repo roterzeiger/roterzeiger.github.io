@@ -261,6 +261,12 @@
             font-family: monospace;
             width: 100%;
         }
+
+        /* Steam-Fenster spezifische Stile */
+        #steamWindow .window-body {
+            padding: 0;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -305,13 +311,14 @@
                 <img src="https://cdn-icons-png.flaticon.com/512/1388/1388961.png" alt="Terminal">
                 <span>Terminal</span>
             </div>
-            <!-- Steam-Icon (wird später hinzugefügt) -->
+            <!-- Steam-Icon -->
             <div id="steamIcon" class="desktop-icon" style="display: none;">
                 <img src="https://cdn-icons-png.flaticon.com/512/6124/6124995.png" alt="Steam">
                 <span>Steam</span>
             </div>
         </div>
 
+        <!-- Explorer-Fenster -->
         <div id="explorerWindow" class="window" style="display: none;">
             <div class="window-header">
                 <div class="title">Explorer</div>
@@ -327,6 +334,7 @@
             </div>
         </div>
 
+        <!-- Notepad-Fenster -->
         <div id="notepadWindow" class="window" style="display: none;">
             <div class="window-header">
                 <div class="title">Notepad</div>
@@ -341,6 +349,7 @@
             </div>
         </div>
 
+        <!-- Einstellungen-Fenster -->
         <div id="settingsWindow" class="window" style="display: none;">
             <div class="window-header">
                 <div class="title">Einstellungen</div>
@@ -360,6 +369,7 @@
             </div>
         </div>
 
+        <!-- Calculator-Fenster -->
         <div id="calculatorWindow" class="window" style="display: none;">
             <div class="window-header">
                 <div class="title">lol</div>
@@ -374,6 +384,7 @@
             </div>
         </div>
 
+        <!-- Terminal-Fenster -->
         <div id="terminalWindow" class="window" style="display: none;">
             <div class="window-header">
                 <div class="title">Terminal</div>
@@ -394,6 +405,21 @@ C:\Users\Benutzer>
                     <span>C:\Users\Benutzer></span>
                     <input type="text" class="terminal-input" id="terminalInput" autofocus>
                 </div>
+            </div>
+        </div>
+
+        <!-- Steam-Fenster -->
+        <div id="steamWindow" class="window" style="display: none;">
+            <div class="window-header">
+                <div class="title">Steam</div>
+                <div class="window-controls">
+                    <button class="minimize">-</button>
+                    <button class="maximize">□</button>
+                    <button class="close" id="closeSteam">X</button>
+                </div>
+            </div>
+            <div class="window-body">
+                <iframe src="https://roterzeiger.github.io/dampf.html" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
     </div>
@@ -487,6 +513,14 @@ C:\Users\Benutzer>
             closeWindow("terminalWindow");
         });
 
+        document.getElementById("steamIcon").addEventListener("click", function() {
+            openWindow("steamWindow");
+        });
+
+        document.getElementById("closeSteam").addEventListener("click", function() {
+            closeWindow("steamWindow");
+        });
+
         const backgroundSelect = document.getElementById("backgroundSelect");
         backgroundSelect.addEventListener("change", function() {
             document.body.style.backgroundImage = `url('${this.value}')`;
@@ -519,6 +553,7 @@ C:\Users\Benutzer>
         makeDraggable(document.getElementById("settingsWindow"));
         makeDraggable(document.getElementById("calculatorWindow"));
         makeDraggable(document.getElementById("terminalWindow"));
+        makeDraggable(document.getElementById("steamWindow"));
 
         setInterval(updateClock, 1000);
         updateClock();
@@ -614,11 +649,6 @@ C:\Users\Benutzer>
                 }
             });
         }
-
-        // Steam-Icon öffnen
-        steamIcon.addEventListener("click", function() {
-            window.open("https://roterzeiger.github.io/dampf.html", "_blank");
-        });
 
         setupTerminalInput();
     </script>
