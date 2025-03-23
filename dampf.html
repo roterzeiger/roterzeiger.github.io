@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dampf</title>
+    <style>
+        body {
+            font-family: "Motiva Sans", Arial, sans-serif;
+            margin: 0;
+            background: #1b2838;
+            color: #c6d4df;
+        }
+
+       
+        .header {
+            background: #171a21;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #000;
+        }
+
+        .header-logo {
+            width: 90px;
+            height: auto;
+            margin-right: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        .nav-links a {
+            color: #b8b6b4;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        /* Spiel-Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(102, 192, 244, 0.3);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #66c0f4;
+        }
+
+        .game-info {
+            padding: 10px;
+        }
+
+        .game-title {
+            margin: 0;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .game-price {
+            color: #66c0f4;
+            margin: 8px 0;
+            font-size: 18px;
+        }
+
+        .btn-steam {
+            background: #5c7e10;
+            border: none;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" 
+             class="header-logo" 
+             alt="Steam Logo">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">STORE</a></li>
+                <li><a href="#">COMMUNITY</a></li>
+                <li><a href="#">SUPPORT</a></li>
+                <li><a href="#">LOGIN</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="game-grid" id="gameContainer"></div>
+
+    <script>
+        const gameNames = [
+            "Cyber Revolution", "1&1", "Dragon Quest", "Zombie Survival",
+            "Medieval Kingdom", "Robot Uprising", "Ocean Explorer", "Wild West Saga",
+            "Future Racing", "Alien Invasion", "Magic Academy", "Cyberpunk City",
+            "Space Mining", "Pirate Legends", "Viking Conquest", "Samurai Showdown",
+            "Ghost Hunter", "Cyber Gladiator", "Mars Colony", "Dinosaur World",
+            "Steampunk Adventure", "Cyber Defense", "eveee seele", "Post-Apocalypse",
+            "Cyber Heist", "Dragon Rider", "Space Farm", "Cyber Samurai",
+            "Robot Factory", "Cyber Detective", "Space Pirates", "Cyber Warrior"
+        ];
+
+        const gameContainer = document.getElementById('gameContainer');
+        const prices = ["€9.99", "€19.99", "€29.99", "€59.99", "€0.99", "€-100"];
+
+    
+        for (let i = 0; i < 100; i++) {
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+            
+            gameCard.innerHTML = `
+                <img src="https://picsum.photos/250/150?random=${i}" 
+                     class="game-image" 
+                     alt="${gameNames[i % gameNames.length]}">
+                <div class="game-info">
+                    <h3 class="game-title">${gameNames[i % gameNames.length]}</h3>
+                    <div class="game-price">${prices[Math.floor(Math.random() * prices.length)]}</div>
+                    <button class="btn-steam">In den Warenkorb</button>
+                </div>
+            `;
+
+            gameContainer.appendChild(gameCard);
+        }
+
+        
+        document.querySelectorAll('.btn-steam').forEach(button => {
+            button.addEventListener('click', () => {
+                button.textContent = 'Hinzugefügt ✓';
+                button.style.background = '#4a642a';
+                setTimeout(() => {
+                    button.textContent = 'In den Warenkorb';
+                    button.style.background = '#5c7e10';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
